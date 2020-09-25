@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"> 
+	<head>
+		<meta charset="utf-8">
+		<title>岗位详情</title>
+		
+		<!-- 引入layui支持 -->
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}" ></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}" ></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+		<style>
+			.title{
+				font-size: 30px;
+				color: #2e343b;
+				font-weight: 700;
+				margin-top: 4px;
+			}
+			.titleb{
+				font-weight: 700;
+				line-height: 28px;
+				font-size: 20px;
+				width: 505px;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+			.top{
+				/* width: 80%;
+				display: inline-block; */
+			}
+			
+		</style>
+		
+	</head>
+	<body>
+	<div class="layui-fluid">
+		
+		<!-- 内容显示区 -->
+		<div class="top">
+			
+			<!-- 卡片1 -->
+			<div class="layui-card">
+			  <div class="layui-card-header title">
+				  [[${post.title}]] 
+				  <label style="color: #FF0000;">
+					  [[${post.wagesmin}]]-[[${post.wagesmax}]] 元/月
+				  </label>
+				  <span th:if="${post.state==0}" class="layui-badge layui-bg-blue">在招</span>
+				  <span th:if="${post.state==1}" class="layui-badge">停招</span>
+			  </div>
+			  <div class="layui-card-body">
+				<br>
+				<div>
+					<span th:each=" row : ${label}" class="layui-badge layui-bg-blue" style="margin-right: 10px;" th:text="${row}"></span>
+				</div>
+				<br>
+				<div style="color: #23A1FF;">
+				  招[[${post.hiring}]]人 | [[${post.academicDegree}]] | [[${post.experience}]]
+				</div>
+				<br>
+				<div>
+					<span>地址：[[${post.workaddress}]]</span>
+				</div>
+			  </div>
+			</div>
+			<hr />
+			
+			<!-- 卡片2 -->
+			<div class="layui-card">
+			  <div class="layui-card-header titleb">职位描述</div>
+			  <div class="layui-card-body">
+				<pre>[[${post.content}]]</pre>
+			  </div>
+			</div>
+			<hr />
+			
+			<!-- 卡片3 -->
+			<div class="layui-card">
+			  <div class="layui-card-header titleb">公司介绍</div>
+			  <div class="layui-card-body">
+				<a style="color: #23A1FF; font-size: 20px;" th:href="@{factoryfin(enterpriseId=${factory.id})}">[[${factory.title}]]</a>
+				<pre>[[${factory.content}]]</pre>
+			  </div>
+			</div>
+			<hr />
+			
+			<!-- 卡片4 -->
+			<div class="layui-card">
+			  <div class="layui-card-header titleb">公司地址</div>
+			  <div class="layui-card-body">
+				<pre>[[${factory.address}]]</pre>
+			  </div>
+			</div>
+			<hr />
+			
+		</div>
+		
+	</div>
+	</body>
+</html>

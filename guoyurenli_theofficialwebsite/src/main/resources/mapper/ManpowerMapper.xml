@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.example.guoyurenli.mapper.ManpowerMapper">
+ 
+ 	<!-- 插入一个求职人员信息, 返回自增主键 -->
+	<insert id="addManpower" parameterType="com.example.guoyurenli.entity.Manpower"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `manpower`
+        (`id`, `creator`, `name`, `idCard`, `myselfCellphone`, `academicDegree`, `residence`, `emergencyContactPerson`, `sex`, `emergencyContactPersonRelation`, `emergencyContactPersonCellphone`, `referrer`, `company`, `entry`, `writeTime`) 
+  		VALUES(#{id}, #{creator}, #{name}, #{idCard}, #{myselfCellphone}, #{academicDegree}, #{residence}, #{emergencyContactPerson}, #{sex}, #{emergencyContactPersonRelation}, #{emergencyContactPersonCellphone}, #{referrer}, #{company}, #{entry}, #{writeTime}) 	
+	</insert>
+	
+	<!-- 查询人员个数 -->
+	<select id="getManpower" resultType="Integer" parameterType="hashmap">
+		 SELECT COUNT(id) 
+		 FROM `manpower` a INNER JOIN `gy_ums` b  
+		 ON a.id = b.`manpowerid`
+  		<where>
+		    <if test="creator != null">
+		         creator=#{creator}
+		    </if>
+		    <if test="like != null">
+   				AND `name` LIKE #{like}
+  			</if>
+  			<if test="state != null">
+   				AND state <![CDATA[ <> ]]>#{state}
+  			</if>
+  		</where>
+	</select>
+	
+ 	<!-- 查询人员信息 -->
+	<select id="getManpowerList" resultType="hashmap">
+		SELECT a.`username`, b.*, c.*
+		FROM gy_users a 
+		INNER JOIN `manpower` b ON a.`user_id` = b.`creator` 
+		INNER JOIN `gy_ums` c ON b.`id` = c.`manpowerid`
+		<where>
+		    <if test="creator != null">
+		         creator=#{creator}
+		    </if>
+		    <if test="like != null">
+   				AND `name` LIKE #{like}
+  			</if>
+  			<if test="state != null">
+   				AND state <![CDATA[ <> ]]>#{state}
+  			</if>
+  		</where>
+		ORDER BY `id` DESC 
+		LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 删除一个人 -->
+	<delete id="deleteManpower" parameterType="Integer">
+		DELETE FROM `manpower` WHERE id=#{id}
+	</delete>
+	
+	<!-- 雪藏一个人 -->
+	<update id="concealManpower" parameterType="Integer">
+		UPDATE `gy_ums` SET state=7 WHERE manpowerid=#{id}
+	</update>
+	
+	<!-- 修改一个人的状态 -->
+	<update id="conditionManpower" parameterType="hashmap">
+		UPDATE `gy_ums`
+			<set>
+		      <if test="state != null">state=#{state},</if>
+		      <if test="reasonforfailure != null">reasonforfailure=#{reasonforfailure},</if>
+		      <if test="entryunit != null">entryunit=#{entryunit},</if>
+		      <if test="dateofentry != null">dateofentry=#{dateofentry},</if>
+		      <if test="rebates != null">rebates=#{rebates},</if>
+		      <if test="rebatestime != null">rebatestime=#{rebatestime},</if>
+	   		</set>
+		WHERE manpowerid=#{manpowerid}
+	</update>
+	
+	<!-- 修改一个人员的信息 -->
+	<update id="updateManpower" parameterType="hashmap">
+		UPDATE `manpower` SET ${key} WHERE id = #{id}
+	</update>
+ 	
+ 
+</mapper>

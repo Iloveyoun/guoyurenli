@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>注册页面</title>
+	<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+	<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+	<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+</head>
+<body>
+	
+	注册页面：
+	<hr>
+	<form class="layui-form" action="regist.do" method="post" lay-filter="test2">
+		<div class="layui-form-item">
+			<label class="layui-form-label">输入账号</label>
+			<div class="layui-input-block">
+				<input type="text" name="userName" required  lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">输入密码</label>
+			<div class="layui-input-inline">
+				<input type="password" name="userPassword" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+			</div>
+			<div class="layui-form-mid layui-word-aux">请输入密码</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">确认密码</label>
+			<div class="layui-input-inline">
+				<input type="password" name="userPasswordA" required lay-verify="required" placeholder="请再次输入密码" autocomplete="off" class="layui-input">
+			</div>
+			<div class="layui-form-mid layui-word-aux">请再次输入密码</div>
+		</div>
+		<div class="layui-form-item">
+		    <label class="layui-form-label">选择身份</label>
+		    <div class="layui-input-block">
+		      <input type="radio" name="roles" value="2" title="员工" checked>
+		      <input type="radio" name="roles" value="3" title="数据">
+			  <input type="radio" name="roles" value="4" title="供应商">
+		    </div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="formDemo">注册</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		</div>
+	</form>
+</body>
+
+<script>
+	//Demo
+	layui.use('form', function(){
+		var form = layui.form;
+	  
+		form.render(null, 'test2'); //更新 lay-filter="test2" 所在容器内的全部 select 状态
+		//监听提交
+		form.on('submit(formDemo)', function(data){
+			return true;
+		});
+	});
+</script>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.example.guoyurenli.mapper.UserMapper">
+
+ <!-- 查询 -->
+ <!-- <select id="getStudent" resultType="my.db.Student"></select> -->
+ 
+ 
+ 	<!-- shiro:根据用户名查询用户信息 -->
+ 	<select id="queryUserByUsername" resultType="com.example.guoyurenli.entity.GyUsers">
+ 		SELECT user_id, username, `password` FROM `gy_users` WHERE username=#{username}
+ 	</select>
+ 	
+	<!-- 根据用户名查询当前用户的角色列表，3张表关联查询，下面表明返回值是一个Set集合，里面装String -->
+ 	<select id="queryRoleNamesByUsername" resultSets="java.util.Set" resultType="string" >	
+ 		SELECT role_name 
+		FROM `gy_users`
+		INNER JOIN `gy_urs` ON `gy_users`.`user_id` = `gy_urs`.`uid`
+		INNER JOIN `gy_roles` ON `gy_urs`.`rid` = `gy_roles`.`role_id`
+		WHERE `gy_users`.`username` = #{username}
+ 	</select>
+ 	
+ 	<!-- 根据用户名查询当前用户的权限，5张表关联查询 -->
+ 	<select id="queryPermissionsByUsername" resultSets="java.util.Set" resultType="string" >
+ 		SELECT permission_code
+		FROM `gy_users`
+		INNER JOIN `gy_urs` ON `gy_users`.`user_id` = `gy_urs`.`uid`
+		INNER JOIN `gy_roles` ON `gy_urs`.`rid` = `gy_roles`.`role_id`
+		INNER JOIN `gy_rps` ON `gy_roles`.`role_id` = `gy_rps`.`rid`
+		INNER JOIN `gy_permissions` ON `gy_rps`.`pid` = `gy_permissions`.`permission_id`
+		WHERE `gy_users`.`username` = #{username}
+ 	</select>
+ 	
+ 	<!-- 页面分享，根据id查询用户信息 -->
+ 	<select id="queryUserByUserid" resultType="com.example.guoyurenli.entity.GyUsers">
+ 		SELECT user_id, username, `password` FROM `gy_users` WHERE user_id = #{user_id}
+ 	</select>
+ 	
+ 	<!-- 注册一个用户 -->
+ 	<insert id="registGyUsers" parameterType="com.example.guoyurenli.entity.GyUsers"
+ 			useGeneratedKeys="true" keyProperty="user_id">
+ 		 INSERT INTO `gy_users`
+       			 (`username`, `password`, `qqid`, `qq`, `qqFlag`, `qqName`, `email`, `emailFlag`, `phone`, `phoneFlag`, `thumb`, `level`, `vip`, `vipName`, `isAdmin`, `timeCreate`, `timeUpdate`, `timeLogin`) 
+ 		 VALUES( #{username}, #{password}, #{qqid}, #{qq}, #{qqFlag}, #{qqName}, #{email}, #{emailFlag}, #{phone}, #{phoneFlag}, #{thumb}, #{level}, #{vip}, #{vipName}, #{isAdmin}, #{timeCreate}, #{timeUpdate}, #{timeLogin}) 
+ 	</insert>
+ 	
+ 	<!-- 为刚注册的用户分配角色 -->
+	<insert id="registGyRoles" parameterType="hashmap" >
+ 			INSERT INTO `gy_urs` 
+			(`uid`, `rid`)
+			VALUES (#{uid}, #{rid})
+ 	</insert>
+ 	
+ 	<!-- 修改密码 -->
+ 	<update id="alterAsk" parameterType="hashmap">
+ 		UPDATE `gy_users` SET `password`= #{password} WHERE user_id=#{id}
+ 	</update>
+ 
+</mapper>

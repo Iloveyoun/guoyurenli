@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"> 
+	<head>
+		<meta charset="utf-8">
+		<title>添加公司信息</title>
+		
+		<!-- 引入layui支持 -->
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}" ></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}" ></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+	</head>
+	
+	<body>
+	<div class="layui-fluid">
+		
+		<form class="layui-form " lay-filter="test2">
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">公司名称</label>
+		    <div class="layui-input-block">
+		      <input type="text" name="title" required  lay-verify="required" placeholder="请输入公司名称(尽量写详细)" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">公司性质</label>
+			<div class="layui-input-block">
+			  <select name="nature">
+				<option value="">这一项可以先不填</option>
+				<option value="0">互联网</option>
+				<option value="1">制造业</option>
+				<option value="2">人力资源</option>
+				<option value="3">服务业</option>
+				<option value="4">人工智能</option>
+				<option value="5">xxxxxxx</option>
+			  </select>
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">公司地址</label>
+			<div class="layui-input-block">
+			  <input type="text" name="address" required  lay-verify="required" placeholder="请输入公司的详细地址(精确到门牌号)" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item" pane>
+			<label class="layui-form-label">是否信产</label>
+			<div class="layui-input-block">
+			  <input type="radio" name="attribute" value="0" title="非信产" checked>
+			  <input type="radio" name="attribute" value="1" title="渝北区信产">
+			  <input type="radio" name="attribute" value="2" title="北碚区信产">
+			  <input type="radio" name="attribute" value="3" title="市信产">
+			  <input type="radio" name="attribute" value="4" title="市外企业">
+			</div>
+		  </div>
+		  <div class="layui-form-item layui-form-text">
+		    <label class="layui-form-label">公司简介</label>
+		    <div class="layui-input-block">
+		      <textarea name="content" placeholder="请输入公司简介" class="layui-textarea"></textarea>
+		    </div>
+		  </div>
+		  <!-- 文件上传 -->
+		  <div class="layui-form-item layui-form-text">
+		    <label class="layui-form-label">招聘简章</label>
+		    <div class="layui-input-inline">
+		      <div class="layui-upload">
+		        <button type="button" class="layui-btn layui-btn-normal" id="test1">选择文件</button>
+		        <button type="button" class="layui-btn" id="test3">开始上传</button>
+				<input type="text" id="realName" name="realName" style="display: none;" autocomplete="off" class="layui-input">
+			  </div>
+		    </div>
+		  </div>
+		  <br><br><br>
+		  <div class="layui-form-item">
+			<div class="layui-input-block">
+			  <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+			  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		  </div>
+		</form>
+	
+	</div>
+	</body>
+	
+	<script>
+		
+		layui.use('form', function(){
+			var form = layui.form,
+				upload = layui.upload,
+				layer = layui.layer;
+			form.render(null, 'test2'); //更新 lay-filter="test2" 所在容器内的全部 select 状态
+			
+			// 监听表单提交
+			form.on('submit(formDemo)', function(data){
+				
+				var str = $('#realName').val();	// 设置值
+				if(str.length == 0 || str == null)
+				{
+					layer.msg("还未上传招聘简章哟！");
+					return false;
+				}
+				
+				var req = data.field;
+				Af.rest('[[@{/addCompany.do}]]', req, function(data){
+					layer.msg("发布成功！");
+					$('.layui-btn-primary').trigger("click");  // 模拟点击一下
+				})
+				
+				return false;
+			});
+			
+			// 文件上传接口
+			var uploadInst = upload.render({
+				elem: '#test1'		 // 绑定元素
+				,url: '/fileUpload' 	// 上传接口
+				,accept: 'file'		// 限制上传文件类型images（图片），file（所有文件）、video（视频）、audio（音频）
+				,acceptMime: 'application/pdf, text/plain, image/jpg, image/png, application/vnd.ms-excel, application/x-xls, application/vnd.ms-powerpoint, application/x-ppt, application/msword'		// 打开对话框筛选文件类型
+				,exts: 'txt|xls|doc|ppt|png|jpg|pdf'	// 允许上传文件后缀
+				,size: 0
+				,auto: false		// 选择文件后不自动上传
+				,bindAction: '#test3'	// 开始上传
+				,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+				    layer.load(); //上传loading
+				}
+			    ,done: function(res){
+					layer.closeAll('loading'); //关闭loading
+					var data = res.data;
+					$('#realName').show();	// 显示
+					$('#realName').val(data.realNmae);	// 设置值
+					$('#realName').attr('readonly' , 'readonly'); 	// 设置成只读
+					
+					layer.msg('上传成功，可以提交信息了！', {icon: 1});
+				}
+				,error: function(index, upload){
+				    layer.closeAll('loading'); //关闭loading
+				}
+			});
+		  
+		
+		});
+		
+	</script>
+	
+</html>

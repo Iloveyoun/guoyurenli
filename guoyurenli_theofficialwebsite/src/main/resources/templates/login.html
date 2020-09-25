@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>登录页面</title>
+	<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+	<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+	<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+</head>
+<body>
+	
+	登录页面：
+	<hr>
+	<form class="layui-form" action="/login.do" method="post">
+		<div class="layui-form-item">
+			<label class="layui-form-label">输入账号</label>
+			<div class="layui-input-block">
+				<input type="text" name="userName" required  lay-verify="required" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">输入密码</label>
+			<div class="layui-input-inline">
+				<input type="password" name="userPwd" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+			</div>
+			<div class="layui-form-mid layui-word-aux">请输入密码</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="formDemo">登录</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+				<a href="/u/factoryTop" class="layui-btn layui-btn-normal">游客进入</a>
+			</div>
+		</div>
+	</form>
+	
+</body>
+
+<script>
+	//Demo
+	layui.use('form', function(){
+		var form = layui.form;
+		//监听提交
+		form.on('submit(formDemo)', function(data){
+			return true;
+		});
+	});
+</script>
+
+
+</html>

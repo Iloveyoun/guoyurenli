@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>公司详情</title>
+
+		<!-- 引入layui支持 -->
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+
+		<style>
+			.titleaa:hover{
+				color: #23a1ff;
+			}
+			.title{
+				font-weight: 700;
+				line-height: 28px;
+				font-size: 20px;
+				width: 505px;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+			/* 卡片标签字体 */
+			.layui-card-header{
+				font-weight: 700;
+				line-height: 28px;
+				font-size: 20px;
+				width: 505px;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+		</style>
+
+	</head>
+	<body>
+		<div class="layui-fluid">
+
+			<!-- 头部区域 -->
+			<div>
+				<div class="title" style="text-align: center;">
+					[[${factory.title}]]
+					<span th:if="${factory.attribute==1}" class="layui-badge layui-bg-blue">渝北信产</span>
+					<span th:if="${factory.attribute==2}" class="layui-badge layui-bg-blue">北碚信产</span>
+				</div>
+			</div>
+			<hr style="color: aqua;" />
+
+			<!-- 企业信息/岗位区域 -->
+			<div class="top">
+				<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+					<ul class="layui-tab-title">
+						<li class="layui-this">公司信息</li>
+						<li>招聘信息(<label style="color: #FF0000;">[[${postsize}]]</label>)</li>
+					</ul>
+					<div class="layui-tab-content">
+
+						<!-- 公司信息 -->
+						<div class="layui-tab-item layui-show">
+							<!-- 卡片面板 -->
+							<div class="layui-card">
+								<div class="layui-card-header">公司简介</div>
+								<div class="layui-card-body">
+									<pre th:text="${factory.content}">暂无简介</pre>
+								</div>
+							</div>
+							<hr />
+							<div class="layui-card">
+								<div class="layui-card-header">公司地址</div>
+								<div class="layui-card-body">
+									<pre th:text="${factory.address}">暂无地址</pre>
+								</div>
+							</div>
+							<hr />
+							<shiro:user>
+								<div class="layui-card">
+									<div class="layui-card-header">返费详情</div>
+									<div class="layui-card-body">
+										<pre th:text="${factory.remarks}">暂无返费</pre>
+									</div>
+								</div>
+							</shiro:user>
+						</div>
+
+						<!-- 招聘职位 -->
+						<div class="layui-tab-item">
+							<!-- 两个按钮操作 -->
+							<div>
+								<shiro:hasPermission name="gy:g:addpost">
+									<a th:href="@{/postsave(company=${factory.id}, title=${factory.title}, address=${factory.address} )}" class="layui-btn layui-btn-normal">添加职位</a> 
+								</shiro:hasPermission>
+								<a th:if="${factory.realName.length() > 0 && factory.realName != null }" 
+									th:href="@{/u/file(realName=${factory.realName}, guid=${factory.guid} )}"
+									class="layui-btn">下载招聘简章</a>
+							</div>
+							<br><br>
+							<hr />
+
+							<!-- 岗位显示区 -->
+							<div style="height: 100%;" class="layui-row " th:each=" row : ${postlist}">
+								<div style="min-height: 80px; margin: 10px 0px; ">
+
+									<!-- 第一块10 -->
+									<div class="layui-col-xs12 layui-col-sm9 layui-col-md9">
+										<a class="titleaa" th:href="@{/u/postfin(postId=${row.id})}">
+											<div class="title">
+												<label>[[${row.title}]]</label>
+												<label style="color: #FF0000;" th:text="| ${row.wagesmin}-${row.wagesmax}元 |"> </label>
+												<span th:if="${row.state==0}" class="layui-badge layui-bg-blue">在招</span>
+												<span th:if="${row.state==1}" class="layui-badge">停招</span>
+											</div>
+										</a>
+										<span>地址：[[${row.workaddress}]]</span>
+										<div style="color: #23A1FF;">
+											招[[${row.hiring}]]人 | [[${row.experience}]] | [[${row.academicDegree}]]
+										</div>
+									</div>
+
+									<!-- 第二块2 -->
+									<div class="layui-col-xs12 layui-col-sm3 layui-col-md3">
+										<div>发布日期：[[${row.timerelease}]]</div>
+										<div>最近更新：[[${row.timeupdate}]]</div>
+										<shiro:user>
+											<div th:rowid='${row.id}'>
+												<button type="button" class="layui-btn layui-btn-normal" onclick="my.userSetFlags(this, 'updateY', 'reload')">在招</button>
+												<button type="button" class="layui-btn layui-btn-danger" onclick="my.userSetFlags(this, 'updateN', 'reload')">停招</button>
+											</div>
+										</shiro:user>
+									</div>
+
+								</div>
+								<hr />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</body>
+
+	<script>
+		layui.use('layer', function() {
+			var layer = layui.layer;
+		});
+		
+		var my = {};
+		
+		// 用户操作,删除自己的帖子、评论,传入:自己本身,del,back
+		my.userSetFlags = function(dom, cmd, action) {
+			var promptText = $(dom).text(); // == "在招"
+			if (!confirm("确认操作：" + promptText + '?')) return; // 浏览器自带对话框的使用,点击确定返回true,否则false
+
+			var rowid = Number($(dom).parent().attr('rowid')); // 取得本帖子的ID
+			var req = {};
+			req.postId = rowid; // 帖子ID
+			req.cmd = cmd; // 'updateY/updateN'
+			Af.rest('[[@{/enterprise/updateState.do}]]', req, function(data) {
+				// if(action == 'back') location.href = '[[@{/message/list}]]' ;	//返回还不够,还要刷新一下
+				if (action == 'reload') location.reload();
+			})
+		}
+		
+	</script>
+
+</html>

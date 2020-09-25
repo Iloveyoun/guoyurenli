@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.1.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>my_app</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>guoyurenli_theofficialwebsite</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		
+		<!-- 新添加的jar包 -->
+		<dependency><!-- MyBatis支持 -->
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+			<version>1.1.10</version>
+		</dependency>
+		<dependency><!-- MySQL支持 -->
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.28</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- FastJSON支持 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.59</version>
+		</dependency>
+		<!-- Shrio认证器支持支持 -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-spring</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<!-- 导入thymeleaf模板对shiro标签支持的依赖 -->
+		<dependency>
+		    <groupId>com.github.theborakompanioni</groupId>
+		    <artifactId>thymeleaf-extras-shiro</artifactId>
+		    <version>2.0.0</version>
+		</dependency>
+		
+		<!-- Spring Boot项目中对缓存的支持(Shiro要使用缓存第一步	) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+			<version>2.3.1.RELEASE</version>
+		</dependency>
+		<!-- 一个第三方的缓存提供商(Shiro要使用缓存第二步	) -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+		</dependency>
+		<!-- Shiro要使用缓存的支持(Shiro要使用缓存第三步	) -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-ehcache</artifactId>
+			<version>1.5.2</version>
+		</dependency>
+		
+		
+		<!-- 加密所用的jar包，自定义的 -->
+		<dependency>
+			<groupId>org.apache.commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.12</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/commons-codec-1.12.jar</systemPath>
+		</dependency>
+		
+		<!-- SpringTask定时器 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		
+		
+		<!-- 生成二维码的两个依赖 -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>ZXing-core</artifactId>
+			<version>3.3.3</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/ZXing-core-3.3.3.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>ZXing-javase</artifactId>
+			<version>3.3.3</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/ZXing-javase-3.3.3.jar</systemPath>
+		</dependency>
+		
+		<!-- 文件的复制移动等支持 -->
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.7</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+ 				<artifactId>spring-boot-maven-plugin</artifactId>
+				
+				<!-- 打JAR包时要求包含本地库 -->
+				<configuration>
+					<includeSystemScope>true</includeSystemScope>
+				</configuration>
+				
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

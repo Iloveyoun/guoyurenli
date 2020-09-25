@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"> 
+	<head>
+		<meta charset="utf-8">
+		<title>岗位后台管理</title>
+		
+		<!-- 引入layui支持 -->
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}" ></script>
+		<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+		<script>
+			// 加载layui表格模块
+			layui.use('table', function(){
+				var table = layui.table;
+				
+			});
+		</script>
+		
+	</head>
+	<body>
+		
+		<!-- 搜索框 -->
+		<div class="demoTable">
+		  搜索企业：
+			<div class="layui-inline">
+				<input class="layui-input" name="id" id="demoReload" autocomplete="off">
+			</div>
+			<button class="layui-btn" data-type="reload">搜索</button>
+		</div>
+		
+		<!-- 表格显示区 -->
+		<table class="layui-table" 
+			lay-data=
+			"{
+				height: 'full'
+				, id: 'testReload'
+				, url:'/factory/management.do'
+				, page:true
+				, toolbar: '#toolbarDemo'
+			}"
+			lay-filter="test">
+		  <thead>
+		    <tr>
+			  <th lay-data="{type:'radio', fixed:'left'}"></th>
+		      <th lay-data="{field:'id', width:60, sort: true}">ID</th>
+		      <th lay-data="{field:'title', width:90}">公司名称</th>
+		      <th lay-data="{field:'address', width:90}">公司地址</th>
+		      <!-- <th lay-data="{field:'city'}">公司简介</th> -->
+			  <th lay-data="{field:'price', width:100, edit:'text', sort: true}">价格/元</th>
+			  <th lay-data="{field:'expiration', width:100, edit:'text', sort: true}">时间/天</th>
+			  <th lay-data="{field:'remarks', edit:'text', width:70}">备注</th>
+			  <th lay-data="{field:'timeupdata', width:90}">最近更新</th>
+			  <th lay-data="{field:'attribute', width:90, sort: true, templet: function(d){
+						if(d.attribute == 0) return '非信产';
+						if(d.attribute == 1) return '渝北信产';
+						if(d.attribute == 2) return '北碚信产';
+						if(d.attribute == 3) return '市信产';
+						if(d.attribute == 4) return '市外企业';
+						else return d.state;	 }}">信产</th>
+		      <th lay-data="{field:'topflag', width:110, templet: '#checkboxTpl', unresize: true}">置顶</th>
+		      <th lay-data="{field:'banflag', width:60}">加精</th>
+		      <!-- <th lay-data="{field:'delflag', width:60}">删除</th> -->
+			  <th lay-data="{field:'topflag', width:110, templet: '#checkboxTpl1', unresize: true}">在招</th>
+		    </tr>
+		  </thead>
+		</table>
+		
+		<!-- 表格内表单-置顶？ -->
+		<script type="text/html" id="checkboxTpl">
+		  <!-- 这里的 checked 的初始状态由d.topflag控制 -->
+		  <input type="checkbox" name="topflag" value="{{d.id}}" title="置顶" lay-filter="lockDemo" {{ d.topflag ? 'checked' : '' }}>
+		</script>
+		<!-- 表格内表单-在招？ -->
+		<script type="text/html" id="checkboxTpl1">
+		  <!-- 这里的 checked 的初始状态由d.topflag控制 -->
+		  <input type="checkbox" name="recruitment" value="{{d.id}}" title="在招" lay-filter="lockDemo1" {{ d.recruitment ? 'checked' : '' }}>
+		</script>
+		
+		<!-- 头部工具栏 -->
+		<script type="text/html" id="toolbarDemo">
+			<div class="layui-btn-container">
+				<button class="layui-btn layui-btn-sm" lay-event="delete">删除</button>
+			</div>
+		</script>
+		
+	</body>
+	
+	<script>
+		
+		// 加载layui表格模块
+		layui.use('table', function(){
+			var table = layui.table
+				,form = layui.form
+				,layer = layui.layer;
+			
+			// 执行搜索/分享二维码
+			var $ = layui.$, active = {
+				// 搜索
+				reload: function(){
+					var demoReload = $('#demoReload');
+					//执行重载
+					table.reload('testReload', {
+						url: '/factory/management.do'
+						,where: {	//设定异步数据接口的额外参数
+							name: demoReload.val().trim()	// 名字去查询
+						} 
+						//,height: 300
+					});
+				}
+			};
+			// 点击搜索/分享二维码
+			$('.demoTable .layui-btn').on('click', function(){
+				var type = $(this).data('type');	// type = reload
+				active[type] ? active[type].call(this) : '';
+			});
+			
+			//监听置顶操作
+			form.on('checkbox(lockDemo)', function(obj){
+				var req = {};
+				req.id = this.value;		// 企业ID
+				req.key = this.name;	// 字段名称
+				req.value = obj.elem.checked;	// 字段状态
+				Af.rest('[[@{/modify/company.do}]]', req, function(data){
+					layer.msg(data);
+				});
+			});
+			
+			//监听在招操作
+			form.on('checkbox(lockDemo1)', function(obj){
+				var req = {};
+				req.id = this.value;		// 企业ID
+				req.key = this.name;	// 字段名称
+				req.value = obj.elem.checked;	// 字段状态
+				Af.rest('[[@{/modify/company.do}]]', req, function(data){
+					layer.msg(data);
+				});
+			});
+			
+			// 监听单元格编辑事件
+			table.on('edit(test)', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+				var value = obj.value //得到修改后的值
+					,data = obj.data //得到所在行所有键值
+					,field = obj.field; //得到字段
+				var req = {};
+				req.id = data.id;
+				req.key = field;
+				req.value = value;
+				Af.rest('[[@{/modify/company.do}]]', req, function(data){
+					layer.msg(data);
+				});
+			});
+			
+			 //头工具栏事件/删除
+			table.on('toolbar(test)', function(obj){
+			  var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+			  switch(obj.event){
+			    case 'delete':
+			      var dataa = checkStatus.data;  //获取选中行数据
+				  var data = dataa[0];
+				  
+			      //询问框
+					layer.confirm('你确定要删除【' + data.title + '】吗?', {
+						btn: ['确定','取消'] //按钮
+					}, function(){
+						var req = {};
+						req.id = data.id;
+						Af.rest('[[@{/factory/delect.do}]]', req, function(data){
+							location.reload();	// 刷新当前页面
+						});
+					}, function(){
+			    
+			      });
+			    break;
+			  };
+			});
+			
+		});
+		
+	</script>
+	
+	
+</html>

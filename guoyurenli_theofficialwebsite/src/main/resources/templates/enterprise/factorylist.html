@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head>
+		<meta charset="utf-8">
+		<title>公司列表</title>
+		
+		<!-- 引入layui支持 -->
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}" ></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}" ></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+		<style>
+			.titleaa:hover{
+				color: #FF0000;
+			}
+			.title{
+				font-weight: 700;
+				line-height: 28px;
+				font-size: 20px;
+				width: 505px;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+			.content{
+				height: 100%; 
+				min-height: 80px; 
+				margin: 25px 0px;
+				padding: 10px;
+				
+				box-shadow: -1px 3px 8px #009688;
+			}
+			.header{
+				padding: 15px;
+				border: 1px solid #1E9FFF;
+				display: inline-block; 
+				box-shadow: 0px 3px 7px #1e9fff; 
+			}
+			
+		</style>
+	</head>
+	<body>
+	<!-- <div class="layui-fluid"> // 铺满宽度 -->
+	<div class="layui-container">	<!-- 固定宽度 -->
+		
+		<!-- 公司搜索框 -->
+		<div class="header">
+			搜索公司：
+			<div class="layui-inline">
+				<input class="layui-input uname" placeholder="请输入公司名称" id="demoReload" autocomplete="off">
+			</div>
+			<button class="layui-btn"  onclick="my.Search()">搜索</button>
+		</div>
+		
+		<!-- 整个内容区 -->
+		<div class="layui-row">
+			<div class="layui-col-xs12 layui-col-sm12 layui-col-md9">	<!-- 第一大块 -->
+				<!-- 公司内容区 -->
+				<div class="layui-row content" th:each=" row : ${factoryList}">
+					<div class="layui-col-xs12 layui-col-sm6 layui-col-md10">		<!-- 第一块10 -->
+						<a class="titleaa" th:href="@{/u/factoryfin(enterpriseId=${row.id})}">	<!-- 标题 -->
+							<div class="title">
+								<span th:if='${row.topflag}' class="layui-badge">顶</span>
+								[[${row.title}]]
+								<span th:if="${row.attribute==1}" class="layui-badge layui-bg-blue">渝北信产</span>
+								<span th:if="${row.attribute==2}" class="layui-badge layui-bg-blue">北碚信产</span>
+								<span th:if="${row.attribute==3}" class="layui-badge layui-bg-blue">市信产</span>
+								<shiro:hasPermission name="gy:g:price">
+									<label th:if="${row.price!=0 && row.expiration!=0}" style="color: #FF0000;" >[[${row.price}]]元/[[${row.expiration}]]天</label>
+								</shiro:hasPermission>
+							</div>
+						</a>
+						<div> 地址：[[${row.address}]] </div>
+						<div>最近更新：[[${row.timeupdata}]]</div>
+					</div>
+					<div class="layui-col-xs12 layui-col-sm12 layui-col-md2">		<!-- 第二块2 -->
+						<div th:switch="${row.postcount != null}">
+							<div th:case="${row.postcount != 0}">
+								<span class="layui-badge layui-bg-blue">[[${row.postcount}]]</span> 个职位在招
+							</div>
+							<div th:case="${row.postcount == 0}">
+								<span class="layui-badge layui-bg-cyan">暂停招聘</span>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+				<!-- 分页区 -->
+				<div>
+					<div class="page-index-bar" 
+						style="text-align: right;"></div>
+				</div>
+			</div>
+			
+			<!-- 广告区 -->
+			<div class="layui-col-xs12 layui-col-sm12 layui-col-md3">	<!-- 第二大块 -->
+				<div th:replace=" ~{popularize::header}"></div>
+			</div>
+			
+		</div>
+		
+		
+	</div>
+	</body>
+	
+	<script>
+		
+		var my = {};
+		
+		var serviceUri = '[[${url}]]' ; // 当前查询的URI
+		
+		// 点击搜索按钮
+		my.Search = function()
+		{
+			var filter = $('.uname').val().trim();		// 取得搜索的值
+			location.href = my.pageUrl(1, filter);
+		}
+		// 搜用户url指定
+		my.pageUrl = function(pageNumber, filter)
+		{
+			// 因为后台的请求接口是GET请求,所以把请求附件在URL 后面
+			var url = '[[${url}]]';
+			url += '?pageNumber=' + pageNumber;
+			
+			if(filter.length > 0 && filter != null)
+			{
+				// url += '&filter=' + encodeURIComponent(filter);	// 把汉字变成URL编码
+				url += '&filter=' + encodeURIComponent(filter);	// 把汉字变成URL编码
+			}
+			return url;
+		}
+		
+		// 分页
+		var pageCount = [[${pageCount}]];
+		var pageNumber = [[${pageNumber}]];
+		// 初始化执行: 分页显示
+		my.initPage = function(){
+			var str = "";			
+			var skipped = false;
+			for(var i=1; i<=pageCount; i++)
+			{
+				// 如果页面数过多，则添加一个省略号
+				if(i< pageNumber - 2 && i >= 2)
+				{
+					if(!skipped ) str += "...";
+					skipped = true;
+					continue;
+				}
+				if(i> pageNumber + 2 && i <= pageCount - 1)
+				{
+					if(!skipped ) str += "...";
+					skipped = true;
+					continue;
+				}
+				skipped = false;
+				
+				// 当前页码： 以高亮显示
+				if(i == pageNumber)
+					str += "<lable class='layui-btn'> ##1 </lable>".replace(/##1/g, i);
+				else
+					str += "<a class='layui-btn layui-btn-primary' href='##0?pageNumber=##1'> ##1 </a>"
+						.replace(/##0/g, serviceUri)
+						.replace(/##1/g, i);
+						
+				$('.page-index-bar').html(str);	
+			}
+		}(); // 立即执行 my.initPage()
+	</script>
+	
+</html>

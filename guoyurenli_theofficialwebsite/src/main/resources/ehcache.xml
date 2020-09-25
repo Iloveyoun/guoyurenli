@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- updateCheck:表示做了修改之后，需不需要检查缓存数据，同步修改，dynamicConfig:动态配置 -->
+<ehcache updateCheck="false" dynamicConfig="false" >
+
+	<!-- 内存满了，怎么办，指定本地文件夹作为本地存储 -->
+	<diskStore path="C:\TEMP" />
+	
+	<!-- timeToLiveSecond:存活时间，单位秒； maxEntriesLocalHeap：最大条目，多少个 -->
+	<cache name="users" maxEntriesLocalHeap="1000" />
+	
+	<!-- 
+		maxElementsInMemory:最多拥有多少个元素；
+		eternal:是否永久存储；
+		timeToIdleSeconds/timeToLiveSeconds:如果数据很久没使用，最大过期时间，当eternal为true时，这两个设置失效
+		overflowToDisk：缓存数据太多了，要不要存磁盘
+		maxElementsOnDisk：存入磁盘的最大数据
+		diskPersistent：设置磁盘缓存区持久化之类的
+	-->
+	<defaultCache name="defaultCache" 
+				  maxElementsInMemory="10000"
+				  eternal="false"
+				  timeToIdleSeconds="120"
+				  timeToLiveSeconds="120"
+				  overflowToDisk="false"
+				  maxElementsOnDisk="100000"
+				  diskPersistent="false"
+				  diskExpiryThreadIntervalSeconds="120"
+				  memoryStoreEvictionPolicy="LRU" />
+	<!-- 
+		最后一个参数很重要,缓存淘汰策略，当缓存空间比较紧张时，我们要存储新的数据进来，就必然要删除一些老的数据
+		memoryStoreEvictionPolicy:设置缓存的淘汰策略
+			LRU：最近最少使用的数据给他干掉，一般用这个吧，保证热点数据不被干掉
+			FIFO：先进先出
+			LFU：最少使用
+	 -->
+
+
+</ehcache>

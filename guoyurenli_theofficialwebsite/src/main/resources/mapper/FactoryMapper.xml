@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.example.guoyurenli.mapper.FactoryMapper">
+
+	<!-- 添加一个厂区（公司） -->
+	<insert id="addFactory" parameterType="com.example.guoyurenli.entity.GyFactory"> 
+		INSERT INTO `gy_factory`
+        (`id`, `creator`, `title`, `nature`, `address`, `content`, `attribute`, `timecreate`, `storePath`, `realName`, `guid`, `suffix`, `topflag`, `banflag`, `delflag`, `price`, `expiration`, `remarks`, `timeupdata`) 
+		VALUES(#{id}, #{creator}, #{title}, #{nature}, #{address}, #{content}, #{attribute}, #{timecreate}, #{storePath}, #{realName}, #{guid}, #{suffix}, #{topflag}, #{banflag}, #{delflag}, #{price}, #{expiration}, #{remarks}, #{timeupdata}) 
+	</insert>
+	
+	<!-- 查询所有公司数量 -->
+	<select id="getCount" resultType="Integer" parameterType="hashmap">
+		SELECT COUNT(id) FROM `gy_factory`
+		WHERE delflag=0
+		<if test="like != null">
+   			AND `title` LIKE #{like}
+  		</if>
+  		<if test="attribute != null">
+   			AND attribute = #{attribute}
+  		</if>
+	</select>
+	
+	<!-- 查询符合条件的所有公司 -->
+	<select id="factoryList" resultType="hashmap">
+		SELECT id, title, address, content, attribute, timeupdata
+		, topflag, banflag, delflag, price, expiration, remarks, timeupdata FROM `gy_factory`
+		WHERE delflag=0
+	    <if test="like != null">
+  			AND `title` LIKE #{like}
+ 		</if>
+ 		<if test="attribute != null">
+  			AND attribute = #{attribute}
+ 		</if>
+  		ORDER BY topflag DESC, `id` ASC 
+  		LIMIT #{startIndex}, #{pageSize}
+	</select>
+	
+	<!-- 查询一个公司下有几个岗位 -->
+	<select id="getPostCount" resultType="Integer">
+		SELECT COUNT(company) FROM `gy_post` WHERE company=#{company} AND state=0
+	</select>
+	
+	<!-- 根据特定ID查询公司信息 -->
+	<select id="getFactory" resultType="com.example.guoyurenli.entity.GyFactory">
+		select id, title, address, content, attribute, timecreate, realName, guid, remarks from `gy_factory` where id=#{id}
+	</select>
+	
+	<!-- 根据厂区的ID查询厂区发布的岗位 -->
+	<select id="getPostList" resultType="hashmap">
+		SELECT id, title, experience, academicDegree, wagesmin, wagesmax, timeupdate, state, workaddress, timerelease, hiring 
+		FROM `gy_post` 
+		WHERE company = #{company}
+	</select>
+	
+	<!-- 定时任务:获取所有delflag字段为1的数据,就是删除了的 -->
+	<select id="getDelFactory" resultType="com.example.guoyurenli.entity.GyFactory">
+		SELECT id, guid, suffix, title FROM `gy_factory` WHERE delflag=1
+	</select>
+	
+	
+	
+
+
+</mapper>

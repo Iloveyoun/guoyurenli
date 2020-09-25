@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	<head>
+		<meta charset="utf-8">
+		<title>增加人员</title>
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+	</head>
+	<body>
+	<div>
+		<label>人员信息填写</label>
+		<div th:rowid="${user.user_id}">当前推荐人：[[${user.username}]]</div>
+		
+		
+		<form class="layui-form layui-form-pane" lay-filter="test2" action="/staffSave.do" method="post">
+		  <div style="display: none;">
+			<input type="text" th:value="${user.user_id}" name="creator" lay-verify="required" autocomplete="off" class="layui-input">
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*姓名</label>
+			<div class="layui-input-block">
+			  <input type="text" name="name" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*身份证号</label>
+			<div class="layui-input-block">
+			  <input type="text" name="idCard" required  lay-verify="required|identity" placeholder="请输入身份证号" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*性别</label>
+			<div class="layui-input-block">
+			  <input type="radio" name="sex" value="1" title="男" checked>
+			  <input type="radio" name="sex" value="0" title="女" >
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*联系电话</label>
+			<div class="layui-input-block">
+			  <input type="text" name="myselfCellphone" required  lay-verify="required|phone" placeholder="请输入联系电话" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*学历</label>
+			<div class="layui-input-block">
+			  <select name="academicDegree" lay-verify="required">
+				<option value="">请选择学历</option>
+				<option value="4">初中</option>
+				<option value="3">高中</option>
+				<option value="2">专科</option>
+				<option value="1">本科</option>
+				<option value="1">硕士</option>
+			  </select>
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">现居住地</label>
+			<div class="layui-input-block">
+			  <input type="text" name="residence" placeholder="请输入地址,精确到门牌号.50字以内" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*紧急联络人</label>
+			<div class="layui-input-block">
+			  <input type="text" name="emergencyContactPerson" required  lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*联络人关系</label>
+			<div class="layui-input-block">
+			  <select name="emergencyContactPersonRelation" lay-verify="required">
+				<option value="">请选择关系</option>
+				<option value="0">父亲</option>
+				<option value="1">母亲</option>
+				<option value="2">妻子</option>
+				<option value="3">丈夫</option>
+				<option value="4">兄弟</option>
+				<option value="5">姐妹</option>
+				<option value="6">亲戚</option>
+			  </select>
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*联络人电话</label>
+			<div class="layui-input-block">
+			  <input type="text" name="emergencyContactPersonCellphone" required  lay-verify="required|phone" placeholder="请输入手机号" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*推荐人姓名</label>
+			<div class="layui-input-block">
+			  <input type="text" name="referrer" required  lay-verify="required" placeholder="请输入推荐人" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*面试企业</label>
+			<div class="layui-input-block">
+			  <input type="text" name="company" required  lay-verify="required" placeholder="请输入面试企业" autocomplete="off" class="layui-input">
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<label class="layui-form-label">*面试时间</label>
+			<div class="layui-input-block">
+			  <input type="text" name="entry" class="layui-input" id="test1" >
+			</div>
+		  </div>
+		  <div class="layui-form-item">
+			<div class="layui-input-block">
+			  <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+			  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		  </div>
+		</div>
+		
+	</div>	
+	</body>
+	
+	<script>
+		
+		// 不能使用layui.all.js方式加载layui
+		layui.use(['laydate', 'form', 'layer'], function(){
+			var form = layui.form, 
+				laydate = layui.laydate, 
+				layer = layui.layer;
+		  
+		  form.render(null, 'test2'); //更新 lay-filter="test2" 所在容器内的全部 select 状态
+		  // 监听提交
+		  form.on('submit(formDemo)', function(data){
+			layer.msg("添加成功");
+		  });
+		  
+		  // 时间选择器
+		  laydate.render({
+			elem: '#test1'		// 指定元素
+			,type:'date'		// 指定选择器,year:年选择器,month:年月选择器,date:日期选择器(默认)...
+			// , range: true 			// 或 range: '~' 来自定义分割字符,定义了这个会:2020-06-02 - 2020-06-20这样显示一个时间段
+			// ,format: 'yyyy年MM月dd日' 	// 可任意组合
+			,value: new Date() 			// 初始值，
+			,min: 0 , max: 60			// 设置一个区间,区间外的日期不可选
+			// ,showBottom: false		// 是否显示底部区域
+			// ,lang: 'cn'				// 文字,en:英文版(国际版),cn:中文版
+			,theme: 'molv'				// default(默认简约),molv(墨绿),grid(格子主题),#颜色值(自定义颜色)
+			,calendar: true				// 显示公历节日
+			
+		  });
+		
+		
+		});
+		  
+		
+	</script>
+</html>

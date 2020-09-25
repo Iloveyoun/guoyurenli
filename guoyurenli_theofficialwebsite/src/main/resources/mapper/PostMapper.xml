@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.example.guoyurenli.mapper.PostMapper">
+
+	<!-- 查询所有的标签（福利），添加岗位的时候显示用 -->
+	<select id="getLabel" resultType="com.example.guoyurenli.entity.GyLabel">
+		SELECT * FROM `gy_label`
+	</select>
+	
+	<!-- 添加一个岗位 -->
+	<insert id="addPost" parameterType="com.example.guoyurenli.entity.GyPost"
+		useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO `gy_post`
+        ( `company`, `creator`, `title`, `content`, `workaddress`, `experience`, `academicDegree`, `wagesmin`, `wagesmax`, `timerelease`, `timeupdate`, `hiring`, `state`, `topflag`, `banflag`, `delflag`) 
+ 		 VALUES( #{company}, #{creator}, #{title}, #{content}, #{workaddress}, #{experience}, #{academicDegree}, #{wagesmin}, #{wagesmax}, #{timerelease}, #{timeupdate}, #{hiring}, #{state}, #{topflag}, #{banflag}, #{delflag}) 
+	</insert>
+	
+	<!-- 添加一个岗位的标签（福利） -->
+	<insert id="addLabel" parameterType="com.example.guoyurenli.entity.GyPls">
+		INSERT INTO `gy_pls`
+        (`pid`, `lid`) 
+ 		VALUES(#{pid}, #{lid}) 
+	</insert>
+	
+	<!-- 根据ID查询岗位信息 -->
+	<select id="getPost" resultType="hashmap">
+			SELECT * FROM `gy_post` WHERE id=#{id}
+	</select>
+	
+	<!-- 查询岗位的标签（福利） -->
+	<select id="getPostLabel" parameterType="Integer" resultSets="java.util.Set" resultType="string" >
+		SELECT b.`title`
+		FROM `gy_pls` a LEFT OUTER JOIN `gy_label` b on a.`lid` = b.`id`
+		where a.`pid` = #{pid}
+	</select>
+	
+	<!-- 查询岗位的数量 -->
+	<select id="getPostConut"  resultType="Integer"> 
+		SELECT COUNT(id) FROM `gy_post`
+		<where>
+		    <if test="like != null">
+   				`title` LIKE #{like}
+  			</if>
+  		</where>
+	</select>
+	
+	<!-- 查询所有岗位 -->
+	<select id="getPostList" resultType="hashmap" parameterType="hashmap">
+		SELECT id, title, experience, academicDegree, wagesmin, wagesmax, timeupdate, state, workaddress, timerelease, hiring FROM `gy_post`
+		<where>
+		    <if test="like != null">
+   				`title` LIKE #{like}
+  			</if>
+  		</where>
+  		ORDER BY `id` DESC
+  		LIMIT #{startIndex}, #{pageSize}
+	</select>
+	
+	<!-- 修改一个岗位的“在招”“停招”状态 -->
+	<update id="updateState" parameterType="hashmap">
+		UPDATE `gy_post` SET state=#{state}, timeupdate=#{timeupdate} WHERE id=#{id}
+	</update>
+	
+	<!-- 修改一个企业下所有岗位的“在招”“停招”状态 -->
+	<update id="updateStates" parameterType="hashmap">
+		UPDATE `gy_post` SET state=#{state}, timeupdate=#{timeupdate} WHERE company=#{company}
+	</update>
+	
+	
+</mapper>

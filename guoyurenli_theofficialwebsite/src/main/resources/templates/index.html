@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	
+	<head>
+		<meta charset="utf-8">
+		<title>国宇人力后台管理系统</title>
+		
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+	</head>
+	
+	<body class="layui-layout-body">
+		<div class="layui-layout layui-layout-admin">
+		  <div class="layui-header">
+			<div class="layui-logo">国宇人力后台管理系统</div>
+			<!-- 头部区域（可配合layui已有的水平导航） -->
+			<ul class="layui-nav layui-layout-left">
+			  <li class="layui-nav-item"><a href="http://ggfw.rlsbj.cq.gov.cn/xcb/zgbtxt/"  target="mainFrame">信产查询</a></li>
+			  <li class="layui-nav-item"><a href="#">待定</a></li>
+			  <li class="layui-nav-item"><a href="#">待定</a></li>
+			  <li class="layui-nav-item">
+				<a href="javascript:;">其它系统</a>
+				<dl class="layui-nav-child">
+				  <dd><a href="#">待定</a></dd>
+				  <dd><a href="#">待定</a></dd>
+				  <dd><a href="#">待定</a></dd>
+				</dl>
+			  </li>
+			</ul>
+			<ul class="layui-nav layui-layout-right">
+			  <li class="layui-nav-item">
+				<a href="javascript:;">
+				  <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+				  <span>[[${user.username}]]</span>
+				  <span> 
+					  <shiro:hasRole name="admin">【Boos】</shiro:hasRole>
+					  <shiro:hasRole name="employee">【员工】</shiro:hasRole>
+					  <shiro:hasRole name="dataclerk">【数据】</shiro:hasRole>
+				  </span>
+				</a>
+				<dl class="layui-nav-child">
+				  <dd><a href="#">基本资料</a></dd>
+				  <dd><a th:href="@{/alterAsk}" target="mainFrame">修改密码</a></dd>
+				  <shiro:hasRole name="admin"><!-- 只有老板能注册 -->
+					  <dd><a th:href="@{/regist}" target="mainFrame">注册账号</a></dd>
+				  </shiro:hasRole>
+				</dl>
+			  </li>
+			  <li class="layui-nav-item"><a th:href="@{exit}">退出</a></li>
+			</ul>
+		  </div>
+		  
+		  <div class="layui-side layui-bg-black">
+			<div class="layui-side-scroll">
+			  <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+			  <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+				<li class="layui-nav-item layui-nav-itemed">
+				  <a class="" href="javascript:;">人员管理</a>
+				  <dl class="layui-nav-child">
+					<shiro:hasPermission name="gy:r:find">
+						<dd><a th:href="@{/stafflist}" target="mainFrame">人员列表</a></dd>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="gy:r:save">
+						<dd><a th:href="@{/staffSave}" target="mainFrame">增加人员</a></dd>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="gy:r:allfind">
+						<dd><a th:href="@{/staffAlllist}" target="mainFrame">所有人员</a></dd>
+					</shiro:hasPermission>
+				  </dl>
+				</li>
+				<li class="layui-nav-item">
+				  <a href="javascript:;">岗位管理</a>
+				  <dl class="layui-nav-child">
+					<shiro:hasPermission name="gy:g:save">
+						<dd><a th:href="@{/addCompany}" target="mainFrame" >增加公司</a></dd>
+					</shiro:hasPermission>
+					<shiro:user>
+						<dd><a th:href="@{/u/factoryTop}" target="mainFrame">公司列表</a></dd>
+					</shiro:user>
+					<shiro:hasRole name="admin">
+						<dd><a th:href="@{/factory/management}" target="mainFrame">企业管理</a></dd>
+					</shiro:hasRole>
+				  </dl>
+				</li>
+				<li class="layui-nav-item"><a href="#">待定</a></li>
+				<li class="layui-nav-item"><a href="#">待定</a></li>
+			  </ul>
+			</div>
+		  </div>
+		  
+		  <div class="layui-body">
+			<!-- 内容主体区域 -->
+			<div style="padding: 15px; ">
+				
+				<iframe name="mainFrame" frameborder="0" style="min-height: 1000px; width: 100%;"></iframe>
+				
+			</div>
+		  </div>
+		  
+		<div class="layui-footer">
+			<!-- 底部固定区域 -->
+			<p>联系我们：电话180 8406 6302（谭）</p>
+		</div>
+		
+	</body>
+	
+	<script src="../layui/lay/modules/element.js"></script>
+	<script>
+		
+		layui.use('element', function(){
+		  var element = layui.element;
+		  
+		});
+		
+	</script>
+	
+</html>

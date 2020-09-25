@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>人员列表</title>
+		<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/afquery.js}"></script>
+		<script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+		<link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+		
+		<style>
+			/* 修改密码对话框设置 */
+			.windoss{
+				margin: 20px auto;
+				border:1px solid #009688;
+				border-radius: 20px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<!-- 存放二维码的容器 -->
+		<div class="Index-Popup-Boxs" style="display: none;">
+			<div>二维码有效期：3天</div>
+			<img  id="qrcode" style="padding-left: 20px">
+		</div>
+		
+		<!-- 二维码分享 -->
+		<div class="demoTable">
+		  搜索姓名：
+			<div class="layui-inline">
+				<input class="layui-input" name="id" id="demoReload" autocomplete="off">
+			</div>
+			<button class="layui-btn" data-type="reload">搜索</button>
+			<!-- <shiro:hasRole name="employee">
+				<button class="layui-btn" data-type="share">分享二维码</button>
+			</shiro:hasRole>
+			<shiro:hasRole name="admin">
+				<button class="layui-btn" data-type="share">分享二维码</button>
+			</shiro:hasRole> -->
+		</div>
+		
+		<!-- 表格数据显示 -->
+		<table id="demo" lay-filter="test"></table>
+		
+		<!-- 头部工具栏 -->
+	<!-- 	<script type="text/html" id="toolbarDemo">
+			<div class="layui-btn-container">
+			<shiro:hasRole name="employee"> <button class="layui-btn layui-btn-sm" lay-event="add">添加</button> </shiro:hasRole>
+			<shiro:hasRole name="admin"> <button class="layui-btn layui-btn-sm" lay-event="add">添加</button> </shiro:hasRole>
+			<button class="layui-btn layui-btn-sm" lay-event="delete">删除</button>
+			<button class="layui-btn layui-btn-sm" lay-event="update">编辑</button>
+			</div>
+		</script> -->
+		
+		<!-- 后面的工具栏 -->
+		<!-- <script type="text/html" id="barDemo">
+			<shiro:hasRole name="employee"> <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">提交</a> </shiro:hasRole>
+			<shiro:hasRole name="dataclerk"> <a class="layui-btn layui-btn-xs" lay-event="edit">处理</a> </shiro:hasRole>
+			<shiro:hasRole name="employee"> <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a> </shiro:hasRole>
+		</script> -->
+		
+		<!-- 入职成功的详细数据 -->
+		<div class="simple_dlg_define" style="display: none;">	<!-- 隐藏 -->
+			<div>
+				<input type="text" placeholder="输入返费金额(单位元)" class="layui-input rebates windoss" />
+				<input type="text" placeholder="输入返费时间(单位天)" class="layui-input rebatestime windoss" />
+			</div>
+		</div>
+		
+	</body>
+	
+	<script>
+		layui.use(['table','layer'], function(){
+			var table = layui.table;
+			var layer = layui.layer;
+		  
+			//第一个实例
+			table.render({
+				elem: '#demo'
+				,height: 'full'
+				,url: '/stafflist.do'//数据接口
+				,page: true //开启分页
+				,title:'人员信息表'
+				,toolbar: '#toolbarDemo'	// 开启打印那几个按钮，整个表的工具栏
+				,cols: [  [
+					{type:'radio', fixed: 'left'}	
+					,{field: 'id', title: 'ID', width:60, sort: true, fixed: 'left'}
+					,{field: 'name', title: '姓名', width:90, fixed: 'left'}
+					,{field: 'username', title: '介绍人', width:100,sort: true}
+					,{field: 'sex', title: '性别', width: 80, sort: true, templet: function(d){return d.sex==1?'男':'女'}}
+					,{field: 'idCard', title: '身份证', width:80}
+					,{field: 'myselfCellphone', title: '电话', width:80}
+					,{field: 'academicDegree', title: '学历', width:80, templet: function(d){
+						if(d.academicDegree == 0) return '硕士';
+						if(d.academicDegree == 1) return '本科';
+						if(d.academicDegree == 2) return '专科';
+						if(d.academicDegree == 3) return '高中';
+						if(d.academicDegree == 4) return '初中';
+						else return d.academicDegree;	}} 
+					,{field: 'residence', title: '居住地', width: 80}
+					,{field: 'emergencyContactPerson', title: '紧急联络人', width: 100}
+					,{field: 'emergencyContactPersonRelation', title: '联络人关系', width: 100, templet: function(d){
+						if(d.emergencyContactPersonRelation == 0) return '父亲';
+						if(d.emergencyContactPersonRelation == 1) return '母亲';
+						if(d.emergencyContactPersonRelation == 2) return '妻子';
+						if(d.emergencyContactPersonRelation == 3) return '丈夫';
+						if(d.emergencyContactPersonRelation == 4) return '兄弟';
+						if(d.emergencyContactPersonRelation == 5) return '姐妹';
+						if(d.emergencyContactPersonRelation == 6) return '亲戚';
+						else return d.emergencyContactPersonRelation;	 }}
+					,{field: 'emergencyContactPersonCellphone', title: '联络人电话', width: 100}
+					,{field: 'referrer', title: '推荐人', width: 80}
+					,{field: 'company', title: '面试企业', edit:'text', width: 100}
+					,{field: 'entry', title: '预约面试时间', edit:'text', width: 130, sort: true}
+					,{field: 'writeTime', title: '填写时间', width: 120, sort: true}
+					,{field: 'state', title: '状态', width: 120, sort: true, templet: function(d){
+						if(d.state == 0) return '已确认';
+						if(d.state == 1) return '已提交';
+						if(d.state == 2) return '报名成功';
+						if(d.state == 3) return '报名失败';
+						if(d.state == 4) return '面试成功';
+						if(d.state == 5) return '面试失败';
+						if(d.state == 6) return '入职成功';
+						if(d.state == 7) return '雪藏';
+						if(d.state == 8) return '已离职';
+						else return d.state;	 } }
+					,{field: 'reasonforfailure', title: '失败原因', width: 120}
+					,{field: 'entryunit', title: '入职单位', width: 110, sort: true}
+					,{field: 'dateofentry', title: '入职日期', width: 110, sort: true}
+					,{field: 'rebates', title: '返费金额(元)', width: 120, sort: true}
+					,{field: 'rebatestime', title: '返费时间', width: 110, sort: true}
+					
+				]  ]
+				,where: {
+					operation: 0
+				}
+				,id: 'testReload'	// 搜索功能，这个来个id
+				,limit:20		// 每页显示的条数
+			});
+		
+			// 执行搜索/分享二维码
+			var $ = layui.$, active = {
+				// 搜索
+				reload: function(){
+					var demoReload = $('#demoReload');
+					//执行重载
+					table.reload('testReload', {	// 重载表格,会从新查询数据库
+						page: {
+							curr: 1 //重新从第 1 页开始
+						}
+						,where: {
+							name: demoReload.val().trim()	// 名字去查询
+						}
+					}, 'data');
+				},
+				// 分享二维码
+				share: function(){
+					//清空二维码文本框
+					$("#qrcode").html("");  
+					//主要看这里就行了（作用是调用后台接口以及图片回显）
+					$("#qrcode").attr("src", "/staff/share");     //根据路径访问后台接口
+					$(".Index-Popup-Boxs").show();
+				}
+			};
+			// 点击搜索/分享二维码
+			$('.demoTable .layui-btn').on('click', function(){
+			    var type = $(this).data('type');	// type = reload
+			    active[type] ? active[type].call(this) : '';
+			});
+		
+			// 表格的添加按钮
+			table.on('toolbar(test)', function(obj){	// test是表格的DOM
+				var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+
+				switch(obj.event){	// obj.event就是lay-event="add"
+					case 'add':		// 添加、、、、、、、、、、、、、、、、、、、、、、、、、、
+						location.href = "[[@{/staffSave}]]";	// 跳转到添加页面
+						break;
+				};
+			});
+			
+			// 单元格编辑事件
+			table.on('edit(test)', function(obj){ //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+				var value = obj.value //得到修改后的值
+				    ,data = obj.data //得到所在行所有键值
+				    ,field = obj.field; //得到字段
+				// 只有特殊情况刚确认及失败的情况才能修改
+				if(data.state != 0 && data.state != 3 && data.state != 5){
+					layer.msg("人员状态不支持此操作哟");
+					return ;
+				}
+				var req = {};
+				req.id = data.id;
+				req.key = field;
+				req.value = value;
+				Af.rest('[[@{/updateManpower.do}]]', req, function(data){
+					layer.msg(data + ':' + field + ' 字段更改为：'+ value);
+				});
+			});
+			
+			//监听工具条
+			table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+			  var data = obj.data; //获得当前行数据
+			  var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+			  var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+			 
+			  if(layEvent === 'detail'){ //提交-----------------------------------------------------------------
+				layer.confirm('提交前请仔细确认信息无误。您确定要提交吗？', {
+				  btn: ['确定','取消'] //按钮
+				}, function(){
+					var req = {};
+					req.manpowerid = data.id;
+					req.currentState = data.state;	// 当前状态
+					req.state = 1;
+					Af.rest('[[@{stateChange.do}]]', req, function(data){
+						// 同步修改表的值
+						obj.update({
+							state: req.state
+						});
+						layer.msg(data);
+					});
+				}, function(){
+					
+				});
+			  } else if(layEvent === 'del'){ //删除------------------------------------------------------------------
+				// 删除跟雪藏之前先判断当前的状态
+				var state = data.state;
+				if(state != 0 && state != 3 && state != 5 && state != 8){
+					layer.msg("人员状态不支持此操作哟");
+					return ;
+				}
+				layer.confirm('请选择要执行的操作', {
+					btn: ['删除','雪藏',] //按钮
+				}, function(){	// 删除
+					var req = {};	// 0表示删除
+					Af.rest('[[@{/staffDelece.do}]]?id='+data.id + '&operation=0', req, function(data){
+						obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+						layer.msg(data, {icon: 1});	
+					});
+				}, function(){	// 雪藏
+					var req = {};	// 1表示雪藏
+					Af.rest('[[@{/staffDelece.do}]]?id='+data.id + '&operation=1', req, function(data){
+						// 改变对应的值
+						obj.update({
+							state: 7
+						});
+						layer.msg(data, {icon: 1});	
+					});
+				});
+				} else if(layEvent === 'edit'){ //处理------------------------------------------------------------------
+					layer.msg('请选择状态', {	// 输入框标题
+						time: 0 //不自动关闭
+						//		   2		  3			  4			 5			6		  8
+						,btn: ['报名成功', '报名失败', '面试成功', '面试失败', '入职成功', '离职', '取消']	// 按钮
+						,yes: function(index){		// 报名成功++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 2;	// 状态
+							Af.rest('[[@{stateChange.do}]]', req, function(data){
+								// 同步修改表的值
+								obj.update({
+									state: req.state
+								});
+								layer.msg(data);
+							});
+						},
+						btn2: function(index, layero){	// 报名失败+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 3;	// 状态
+							layer.close(index);
+							// 输入框
+							layer.prompt({title: '请输入报名失败原因', formType: 2}, function(text, index){
+								layer.close(index);
+								req.reasonforfailure = text;	// 失败原因
+								Af.rest('[[@{stateChange.do}]]', req, function(data){
+									layer.close(index);
+									// 同步修改表的值
+									obj.update({
+										state: req.state,
+										reasonforfailure: req.reasonforfailure
+									});
+									layer.msg(data);
+								});
+							});
+						},
+						btn3: function(index, layero){	// 面试成功+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 4;	// 状态
+							Af.rest('[[@{stateChange.do}]]', req, function(data){
+								// 同步修改表的值
+								obj.update({
+									state: req.state
+								});
+								layer.msg(data);
+							});
+						},
+						btn4: function(index, layero){	// 面试失败+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 5;			// 要改变成的状态
+							layer.close(index);
+							// 输入框
+							layer.prompt({title: '请输入面试失败原因', formType: 2}, function(text, index){
+								layer.close(index);
+								req.reasonforfailure = text;	// 失败原因
+								Af.rest('[[@{stateChange.do}]]', req, function(data){
+									layer.close(index);
+									// 同步修改表的值
+									obj.update({
+										state: req.state,
+										reasonforfailure: req.reasonforfailure
+									});
+									layer.msg(data);
+								});
+							});
+						},
+						btn5: function(index, layero){	// 入职成功+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 6;			// 要改变成的状态
+							req.entryunit = data.company;		// 入职单位
+							//、、、、、、、、、、、、、、、、、、、、
+							// 点击修改密码,用对话框修改密码
+							var dlgContent = $('.simple_dlg_define').html();	// 窗口内容转换成字符串
+							layer.close(index);	// 关闭对话框
+							layer.open({
+								type: 0,
+								title: '入职信息',
+								area: ['250px', 'auto'],
+								content: dlgContent,
+								btn:['确定', '取消'],
+								btn1: function(index, layero){	// 确定按钮回调
+									req.rebates = $('.rebates', layero).val().trim();	// 返费金额
+									req.rebatestime = $('.rebatestime', layero).val().trim();	// 返费时间
+									// 提交
+									Af.rest('[[@{stateChange.do}]]', req, function(data){
+										// 同步修改表的值
+										obj.update({
+											state: req.state
+										});
+										layer.msg(data);
+									});
+								},
+								btn2: function(index, layero){	// 放弃按钮回调
+									layer.close(index);	// 关闭对话框
+								}
+							});
+							//、、、、、、、、、、、、、、、、、、、、、、、、、、、
+							
+						},
+						btn6: function(index, layero){	// 离职+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							var req = {};
+							req.manpowerid = data.id;	// 人员ID
+							req.currentState = data.state;	// 当前状态
+							req.state = 8;			// 要改变成的状态
+							layer.close(index);
+							// 输入框
+							layer.prompt({title: '请输入离职原因', formType: 2}, function(text, index){
+								layer.close(index);
+								req.reasonforfailure = text;	// 失败原因
+								Af.rest('[[@{stateChange.do}]]', req, function(data){
+									layer.close(index);
+									// 同步修改表的值
+									obj.update({
+										state: req.state,
+										reasonforfailure: req.reasonforfailure
+									});
+									layer.msg(data);
+								});
+							});
+						}
+					});
+				} else if(layEvent === 'LAYTABLE_TIPS'){
+					layer.alert('Hi，头部工具栏扩展的右侧图标。');
+				}
+			});
+		  
+		});
+	</script>
+</html>
