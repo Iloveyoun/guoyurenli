@@ -72,8 +72,9 @@
 							</div>
 						</a>
 						<div> 地址：[[${row.address}]] </div>
-						<div>最近更新：[[${row.timeupdata}]]
-							<span th:if='${row.banflag}' class="layui-badge layui-bg-green">可操作岗位</span>
+						<div>
+							最近更新：[[${row.timeupdata}]]
+							<span th:if='${row.banflag}' class="layui-badge layui-bg-black">可操作</span>
 						</div>
 					</div>
 					<div class="layui-col-xs12 layui-col-sm12 layui-col-md2">		<!-- 第二块2 -->

@@ -60,7 +60,7 @@
 						if(d.attribute == 4) return '市外企业';
 						else return d.state;	 }}">信产</th>
 		      <th lay-data="{field:'topflag', width:110, templet: '#checkboxTpl', unresize: true}">置顶</th>
-		      <th lay-data="{field:'banflag', width:60}">加精</th>
+		      <th lay-data="{field:'topflag', width:110, templet: '#checkboxTpl2', unresize: true}">可操作</th>
 		      <!-- <th lay-data="{field:'delflag', width:60}">删除</th> -->
 			  <th lay-data="{field:'topflag', width:110, templet: '#checkboxTpl1', unresize: true}">在招</th>
 		    </tr>
@@ -71,6 +71,11 @@
 		<script type="text/html" id="checkboxTpl">
 		  <!-- 这里的 checked 的初始状态由d.topflag控制 -->
 		  <input type="checkbox" name="topflag" value="{{d.id}}" title="置顶" lay-filter="lockDemo" {{ d.topflag ? 'checked' : '' }}>
+		</script>
+		<!-- 表格内表单-可操作？就是加精 -->
+		<script type="text/html" id="checkboxTpl2">
+		  <!-- 这里的 checked 的初始状态由d.topflag控制 -->
+		  <input type="checkbox" name="banflag" value="{{d.id}}" title="操作" lay-filter="lockDemo2" {{ d.banflag ? 'checked' : '' }}>
 		</script>
 		<!-- 表格内表单-在招？ -->
 		<script type="text/html" id="checkboxTpl1">
@@ -118,6 +123,17 @@
 			
 			//监听置顶操作
 			form.on('checkbox(lockDemo)', function(obj){
+				var req = {};
+				req.id = this.value;		// 企业ID
+				req.key = this.name;	// 字段名称
+				req.value = obj.elem.checked;	// 字段状态
+				Af.rest('[[@{/modify/company.do}]]', req, function(data){
+					layer.msg(data);
+				});
+			});
+			
+			//监听“操作？”操作
+			form.on('checkbox(lockDemo2)', function(obj){
 				var req = {};
 				req.id = this.value;		// 企业ID
 				req.key = this.name;	// 字段名称
